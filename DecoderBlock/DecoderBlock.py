@@ -9,6 +9,7 @@ class DecoderBlock(nn.Module):
                  feed_forward_block: FeedForwardBlock, dropout: float) -> None:
         super().__init__()
         self.self_attention_block = self_attention_block
+        self.feed_forward_block = feed_forward_block
         self.cross_attention_block = cross_attention_block
         self.residual_connection = nn.ModuleList(
             [ResidualConnection(features,dropout) for _ in range(3)])
@@ -19,3 +20,5 @@ class DecoderBlock(nn.Module):
         x = self.residual_connection[1](x, lambda x: self.cross_attention_block(
             x, encoder_output, encoder_output, srv_mask))
         x = self.residual_connection[2](x, self.feed_forward_block)
+        return x
+

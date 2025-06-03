@@ -3,13 +3,13 @@ import torch
 
 
 class LayerNormalisation(nn.Module):
-    def __init__(self, features: int, eps: float = 10**-6) -> None:
+    def __init__(self, features: int, eps: float = 1e-6) -> None:
         super().__init__()
         self.eps = eps
-        self.alpha = nn.Parameter(torch.ones(features))  # Multilied
-        self.bias = nn.Parameter(torch.zeros(features))  # added
+        self.alpha = nn.Parameter(torch.ones(features))  # Scale
+        self.bias = nn.Parameter(torch.zeros(features))  # Shift
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         mean = x.mean(dim=-1, keepdim=True)
-        std = x.std(dim=-1, keepdim=True)
-        return self.alpha * (x-mean)/(std+self.eps)+self.bias
+        std = x.std(dim=-1, keepdim=True, unbiased=False)
+        return self.alpha * (x - mean) / (std + self.eps) + self.bias
